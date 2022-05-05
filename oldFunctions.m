@@ -52,3 +52,10 @@ lp = fir1(48,fc*2*pi/fs,'low');
 audio = filter(lp,1,audio);
 filter_LP = audio;
 end
+
+% Band-stop Filter
+function filter_BS = bandstopFilter(audio,highpass_value,lowpass_value,...
+    bandstop_value, fs)
+bp = fir1(48,[highpass_value*2/fs,lowpass_value*2/fs],'stop');
+filter_BS = filter(bp,1,audio);
+end
