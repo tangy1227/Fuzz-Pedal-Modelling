@@ -1,16 +1,18 @@
 %% Importing Audio and Parameters
-file = 'SO_DE_145_guitar_bang_pluck_clean_Dbmaj.wav';
+% Put file here
+file = 'Shuffle_100_Em_GuitarRiffDry.wav';
 
-GAIN = 30; % Choose range between 1-100
-FREQ = 5; % Choose range between 1-10
-SHAPE = 8; % Choose range between 1-10, changing distortion wave shape
-HIGH = 5000; % range between 1Hz-20kHz (lowpass_value)
-MID = 30; % Choose range between 0-30, higher value gives more MID cutoff
-LOW = 200; % range between 100Hz-500Hz (highpass_value)
-Volume = 20; % Choose range between 0-100
+GAIN = 100; % Choose range between 1-100
+FREQ = 3; % Choose range between 1-10
+SHAPE = 9; % Choose range between 1-10, changing distortion wave shape
+HIGH = 9000; % range between 1Hz-20kHz (lowpass_value)
+MID = 15; % Choose range between 0-30, higher value gives more MID cutoff
+LOW = 300; % range between 100Hz-500Hz (highpass_value)
+Volume = 50; % Choose range between 0-100
+BYPASS = false; 
 
 %% Player the audio
-player = processChain(file,GAIN,SHAPE,FREQ,HIGH,MID,LOW,Volume);
+player = processChain(file,GAIN,SHAPE,FREQ,HIGH,MID,LOW,Volume,BYPASS);
 play(player)
 % Type stop(player) in Command Window to pause the audio
 
@@ -51,24 +53,27 @@ Q = w0/5;
 filter_notch = filter(num, den, audio);
 end
 
-% processChain
+% Process Chain
 function player = processChain(file,gain,SHAPE,FREQ,lowpass_value,...
-    MID,highpass_value,Volume_out)
+    MID,highpass_value,Volume_out,BYPASS)
+% Read Audio
 [audio,fs] = audioread(file);
 signal_mono = audio(:,1); % make the audio mono
-signal_mono = highpassFilter(signal_mono,100,fs); % remove DC offsets, bass frequencies
 
+% Distortion
+signal_mono = highpassFilter(signal_mono,100,fs); % remove DC offsets, bass frequencies
 [audio_env, ~] = envelope(signal_mono, 512); % calculate envelope
 signal = gain * (signal_mono + audio_env.*(SHAPE/10)); % adds amplitude offset
 signal_distorted = fuzz_distortion(signal, FREQ/10);
 
-% signal_distorted = highpassFilter(signal_distorted,highpass_value,fs);
-% signal_distorted = lowpassFilter(signal_distorted,lowpass_value,fs); 
+% Equalizers
+signal_distorted = bandpassFilter(signal_distorted,highpass_value,lowpass_value,fs); % Cut bass/high freq
+signal_distorted = notchFilter(signal_distorted,MID, fs); % Cut mid freq
 
-signal_distorted = bandpassFilter(signal_distorted,highpass_value,lowpass_value,fs); 
-signal_distorted = notchFilter(signal_distorted,MID, fs);
-% signal_distorted = bandstopFilter(signal_distorted,highpass_value,lowpass_value,...
-%     bandstop_value, fs);
-
-player = audioplayer(((Volume_out/100) .* signal_distorted), fs);
+% Audio Player
+if (BYPASS==true)
+    player = audioplayer(((Volume_out/100) .* signal_mono), fs);
+else
+    player = audioplayer(((Volume_out/100) .* signal_distorted), fs);
+end
 end
