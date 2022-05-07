@@ -48,8 +48,7 @@ end
 function sinusoid_test = sinusoid4test_noOffset(gain, duration, fs)
 t = 0:1/fs:duration;
 sinusoid = sin(2*pi*300*t);
-% adding envelope to the signal as offset
-sinusoid_test = gain * sinusoid + 8;
+sinusoid_test = gain * sinusoid + 8; % Add 8 as instructed on the website
 end
 
 % Fuzz Distortion
@@ -64,18 +63,4 @@ for a = 1:length(audio)
     end
 end
 fuzz = audio;
-end
-
-% High-pass Filter
-function filter_HP = highpassFilter(audio, fc, fs)
-hp = fir1(48,fc*2/fs,'high');
-audio = filter(hp,1,audio);
-filter_HP = audio;
-end
-
-% Low-pass Filter
-function filter_LP = lowpassFilter(audio, fc, fs)
-lp = fir1(48,fc*2/fs,'low');
-audio = filter(lp,1,audio);
-filter_LP = audio;
 end
