@@ -1,4 +1,4 @@
-# ECE4803 ModellingFuzz
+# ModellingFuzz
 I created a fuzz pedal on Matlab. The goal is to replicate Z Squared DSP’s Vector Drive pedal process chain. There are seven adjustable parameters in my final delivery, such as parameters for adjusting distortion wave shape, and parameters for adjusting equalizer. The audio processing is not real-time. So, users will need to load their own guitar recordings in the code.
 
 ## Usage
